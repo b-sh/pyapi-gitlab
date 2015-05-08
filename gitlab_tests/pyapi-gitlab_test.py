@@ -296,21 +296,23 @@ class GitlabTest(unittest.TestCase):
         # prepare for the merge
         commit = self.git.getrepositorycommits(self.project_id)[5]
         branch = self.git.createbranch(self.project_id, "mergebranch", commit["id"])
-        merge = self.git.createmergerequest(self.project_id, "develop", "mergebranch", "testmerge")
+        merge = self.git.createmergerequest(self.project_id, "develop", "mergebranch", "testmerge", "descriptiontest")
 
         assert isinstance(self.git.getmergerequests(self.project_id), list)
         merge_request = self.git.getmergerequest(self.project_id, merge["id"])
         assert isinstance(merge_request, dict)
         self.assertEqual(merge_request["title"], "testmerge")
+        self.assertEqual(merge_request["description"], "descriptiontest")
 
         self.assertEqual(len(self.git.getmergerequestcomments(self.project_id, merge["id"])), 0)
         self.assertTrue(self.git.addcommenttomergerequest(self.project_id, merge["id"], "Hello"))
         comments = self.git.getmergerequestcomments(self.project_id, merge["id"])
         self.assertEqual(comments[0]["note"], "Hello")
 
-        self.assertTrue(self.git.updatemergerequest(self.project_id, merge["id"], title="testmerge2"))
+        self.assertTrue(self.git.updatemergerequest(self.project_id, merge["id"], title="testmerge2", description="descriptiontest2"))
         merge_request = self.git.getmergerequest(self.project_id, merge["id"])
         self.assertEqual(merge_request["title"], "testmerge2")
+        self.assertEqual(merge_request["description"], "descriptiontest2")
         self.assertEqual(self.git.getmergerequest(self.project_id, merge["id"])["state"], "opened")
         self.assertTrue(self.git.acceptmergerequest(self.project_id, merge["id"], "closed!"))
         self.assertEqual(self.git.getmergerequest(self.project_id, merge["id"])["state"], "merged")
