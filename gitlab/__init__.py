@@ -1113,8 +1113,7 @@ class Gitlab(object):
 
             return False
 
-    def createmergerequest(self, project_id, sourcebranch, targetbranch,
-                           title, target_project_id=None, assignee_id=None, description=None):
+    def createmergerequest(self, project_id, **kwargs):
         """Create a new merge request.
 
         :param project_id: ID of the project originating the merge request
@@ -1126,12 +1125,10 @@ class Gitlab(object):
         :param description : Description of MR
         :return: dict of the new merge request
         """
-        data = {'source_branch': sourcebranch,
-                'target_branch': targetbranch,
-                'assignee_id': assignee_id,
-                'title': title,
-                'description' : description,
-                'target_project_id': target_project_id}
+        data = {}
+
+        if kwargs:
+            data.update(kwargs)
 
         request = requests.post('{0}/{1}/merge_requests'.format(self.projects_url, project_id),
                                 data=data, headers=self.headers, verify=self.verify_ssl)
@@ -1150,7 +1147,8 @@ class Gitlab(object):
         :param targetbranch: name of the branch to merge to
         :param title: Title of the merge request
         :param assignee_id: Assignee user ID
-        :param closed: MR status.  True = closed
+        :param description : Description of MR
+        :param state_event - New state (close|reopen|merge)
         :return: dict of the modified merge request
         """
         data = {}
@@ -1163,7 +1161,6 @@ class Gitlab(object):
         if request.status_code == 200:
             return json.loads(request.content.decode("utf-8"))
         else:
-
             return False
 
     def acceptmergerequest(self, project_id, mergerequest_id, merge_commit_message=None):

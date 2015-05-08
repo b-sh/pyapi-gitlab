@@ -296,7 +296,7 @@ class GitlabTest(unittest.TestCase):
         # prepare for the merge
         commit = self.git.getrepositorycommits(self.project_id)[5]
         branch = self.git.createbranch(self.project_id, "mergebranch", commit["id"])
-        merge = self.git.createmergerequest(self.project_id, "develop", "mergebranch", "testmerge", "descriptiontest")
+        merge = self.git.createmergerequest(self.project_id, target_branch="develop", source_branch="mergebranch", title="testmerge", description="descriptiontest")
 
         assert isinstance(self.git.getmergerequests(self.project_id), list)
         merge_request = self.git.getmergerequest(self.project_id, merge["id"])
@@ -341,7 +341,7 @@ class GitlabTest(unittest.TestCase):
         # merge request wallnotes
         commit = self.git.getrepositorycommits(self.project_id)[5]
         branch = self.git.createbranch(self.project_id, "notesbranch", commit["id"])
-        merge = self.git.createmergerequest(self.project_id, "develop", "notesbranch", "testnotes")
+        merge = self.git.createmergerequest(self.project_id, target_branch="develop", source_branch="notesbranch", title="testnotes")
         self.assertEqual(len(self.git.getmergerequestwallnotes(self.project_id, merge["id"])), 0)
         note = self.git.createmergerequestewallnote(self.project_id, merge["id"], "test_content")
         assert isinstance(note, dict)
